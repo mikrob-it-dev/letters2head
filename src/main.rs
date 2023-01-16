@@ -3,6 +3,7 @@
 // use crate::log_utils::start_logging;
 use app_constants::AppConstants;
 use app_model::EguiApp;
+use std::panic;
 
 mod app_constants;
 mod app_gui;

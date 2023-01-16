@@ -38,13 +38,13 @@ impl EguiApp {
 
     pub fn set_target_tile() -> u32 {
         let mut rng = rand::thread_rng();
-        rng.gen_range(0..AppConstants::GAME_SIZE)
+        rng.gen_range(0..(AppConstants::GRID_SIZE_X * AppConstants::GRID_SIZE_Y)).try_into().unwrap()
     }
 
     pub fn init_tiles() -> Vec<Tile> {
         let mut tiles = Vec::<Tile>::from([]);
 
-        for i in 0..AppConstants::GAME_SIZE {
+        for i in 0..(AppConstants::GRID_SIZE_X * AppConstants::GRID_SIZE_Y).try_into().unwrap() {
             let tile = Tile {
                 id: i,
                 letter: get_random_letter(),
