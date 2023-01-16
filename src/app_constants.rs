@@ -8,13 +8,10 @@ impl AppConstants {
     pub const APP_DEVELOPER: &str = "mikrob";
     pub const APP_DEVELOPER_WEBSITE: &str = "http://mikrob.it";
 
-    // file locations
-    pub const CHECKLIST_ARCHIVE_LOCATION: &str = "checklists/";
-    pub const LOG_FILE_LOCATION: &str = "log/";
-
     pub const FONT_SIZE: f32 = 30.0;
     pub const GAME_SIZE: u32 = 100;
-    pub const RESULT_DISPLAY_TIMEOUT_MS: u32 = 3000;
+    pub const GRID_SIZE_X: usize = 10;
+    pub const GRID_SIZE_Y: usize = 10;
 
     // TODO: format better
     pub const LICENSE_TEXT: &str =

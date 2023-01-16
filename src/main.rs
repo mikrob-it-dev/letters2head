@@ -3,14 +3,10 @@
 // use crate::log_utils::start_logging;
 use app_constants::AppConstants;
 use app_model::EguiApp;
-use egui::Vec2;
-use std::{fs::create_dir, io::ErrorKind, panic};
 
 mod app_constants;
 mod app_gui;
 mod app_model;
-mod data_model;
-// mod log_utils;
 mod utils;
 
 #[cfg(not(target_arch = "wasm32"))]

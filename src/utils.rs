@@ -1,10 +1,5 @@
-use egui::{Color32, Vec2};
+use egui::{Color32};
 use rand::Rng;
-
-use crate::{
-    app_constants::AppConstants,
-    app_model::{tile, EguiApp},
-};
 
 pub fn get_random_letter() -> char {
     let mut rng = rand::thread_rng();

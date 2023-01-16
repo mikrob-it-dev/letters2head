@@ -1,17 +1,13 @@
-use std::process::ExitCode;
-
 use crate::app_constants::AppConstants;
-use crate::app_model::{tile, EguiApp};
-use crate::data_model::{self, KeyboardInstruction, StepResult};
-use crate::utils::{get_contrast_label_color, get_random_color};
+use crate::app_model::{EguiApp};
+use crate::utils::{get_contrast_label_color};
 // use crate::{log_utils, utils};
 use egui::FontFamily::Proportional;
-use egui::{Align, Align2, Context, FontId, Label, Layout, Ui, Vec2, Widget};
-use egui_extras::{Column, Size, StripBuilder, TableBuilder};
+use egui::{Align, Align2, Context, FontId, Label, Ui, Vec2};
+use egui_extras::{Size, StripBuilder};
 
 impl eframe::App for EguiApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        let display_result_evaluation_window = true;
 
         let tile_size =
             (ctx.available_rect().height() - AppConstants::FONT_SIZE * 1.6 - 50.0) / (11.0);
@@ -41,15 +37,6 @@ impl eframe::App for EguiApp {
 
         egui::CentralPanel::default()
         .show(ctx, |ui| {
-            // // egui::Window::new(AppConstants::APP_NAME)
-            //     .fixed_pos(Pos2::new(10.0, 10.0))
-            //     .collapsible(false)
-            //     .auto_sized()
-            //     .default_width(500.0)
-            //     .show(ctx, |ui| {
-
-            // keyboard input
-            // let keyboard_instruction = register_keyboard_instructions(self, ui);
 
             StripBuilder::new(ui)
                 .size(Size::remainder())
@@ -58,10 +45,9 @@ impl eframe::App for EguiApp {
                     strip.cell(|ui| {
                         // let mut button_grid = Vec::<egui::Button>::from([]);
 
-                        let mut i = 0;
-                        for x in 0..10 {
+                        for x in 0..AppConstants::GRID_SIZE_X {
                             ui.horizontal(|ui| {
-                                for y in 0..10 {
+                                for y in 0..AppConstants::GRID_SIZE_Y {
                                     let current_tile = self.tiles.get(x + y * 10).unwrap();
 
                                     ui.visuals_mut().override_text_color =
@@ -103,17 +89,17 @@ impl eframe::App for EguiApp {
                     });
                 });
 
-            ui_add_controls(ui, self, ctx, tile_size);
+            ui_add_controls(self, ctx, tile_size);
 
             if self.display_attempt_result || self.gui_initialize {
-                ui_show_results_evaluation(ui, self, ctx, tile_size);
+                ui_show_results_evaluation(self, ctx, tile_size);
                 
                 // added to allow loading of the result window (hack, prevents slow response on first attempt)
                 self.gui_initialize = false;
             }
         });
 
-        // ui_add_license_info(self, ctx);
+        ui_add_license_info(self, ctx);
     }
 }
 
@@ -129,15 +115,15 @@ fn ui_add_dev_version_info(ui: &mut Ui, my_app: &mut EguiApp) {
                 ui.label("developed by:");
                 ui.label(format!("|  version: {}  |", AppConstants::APP_VERSION));
                 let license_button_handle = ui.button("License: MIT");
-                // if license_button_handle.clicked() {
-                //     my_app.is_license_info_shown = !my_app.is_license_info_shown;
-                // }
+                if license_button_handle.clicked() {
+                    my_app.is_license_info_shown = !my_app.is_license_info_shown;
+                }
             })
         }
     });
 }
 
-fn ui_add_controls(ui: &mut Ui, my_app: &mut EguiApp, ctx: &egui::Context, tile_size: f32) {
+fn ui_add_controls(my_app: &mut EguiApp, ctx: &egui::Context, tile_size: f32) {
     let mut layout = egui::Layout::top_down_justified(Align::Center);
     layout.main_align = Align::Center;
     egui::Window::new("Controls")
@@ -205,7 +191,6 @@ fn ui_add_controls(ui: &mut Ui, my_app: &mut EguiApp, ctx: &egui::Context, tile_
 }
 
 fn ui_show_results_evaluation(
-    ui: &mut Ui,
     my_app: &mut EguiApp,
     ctx: &egui::Context,
     tile_size: f32,
@@ -256,66 +241,16 @@ fn ui_show_results_evaluation(
         });
 }
 
-// fn ui_add_license_info(my_app: &mut EguiApp, ctx: &Context) {
-//     egui::Window::new("License")
-//         .collapsible(false)
-//         .open(&mut my_app.is_license_info_shown)
-//         .anchor(Align2::LEFT_TOP, [10.0, 10.0])
-//         .min_width(800.0)
-//         .min_height(800.0)
-//         .vscroll(true)
-//         .resizable(false)
-//         .show(ctx, |ui| {
-//             ui.add(Label::new(AppConstants::LICENSE_TEXT).wrap(true));
-//         });
-// }
-
-fn calculate_row_height(text: &String, comment: &String) -> f32 {
-    let step_number_of_lines: f32 = (text.lines().count() + comment.lines().count()) as f32;
-    step_number_of_lines * AppConstants::FONT_SIZE * 1.2 // calibrated constant, ugly
+fn ui_add_license_info(my_app: &mut EguiApp, ctx: &Context) {
+    egui::Window::new("License")
+        .collapsible(false)
+        .open(&mut my_app.is_license_info_shown)
+        .anchor(Align2::LEFT_TOP, [10.0, 10.0])
+        .min_width(1000.0)
+        .min_height(800.0)
+        .vscroll(true)
+        .resizable(false)
+        .show(ctx, |ui| {
+            ui.add(Label::new(AppConstants::LICENSE_TEXT).wrap(true));
+        });
 }
-
-// fn register_keyboard_instructions(egui_app: &mut EguiApp, ui: &mut Ui) -> KeyboardInstruction {
-//     let events = ui.input().events.clone();
-//     for event in &events {
-//         match event {
-//             egui::Event::Key {
-//                 key,
-//                 pressed,
-//                 modifiers: _,
-//             } => {
-//                 if key == &egui::Key::Space && *pressed {
-//                     if egui_app.checklist_position.step != 0 {
-//                         if egui_app.selected_checklist.sections
-//                             [egui_app.checklist_position.section - 1]
-//                             .checklist_steps[egui_app.checklist_position.step - 1]
-//                             .result
-//                             == StepResult::Unattempted
-//                         {
-//                             return KeyboardInstruction::SkipStep;
-//                         } else {
-//                             return KeyboardInstruction::StepAhead;
-//                         }
-//                     } else {
-//                         return KeyboardInstruction::StartSection;
-//                     }
-//                 }
-
-//                 if key == &egui::Key::W && *pressed {
-//                     return KeyboardInstruction::SkipSection;
-//                 }
-//                 if key == &egui::Key::A && *pressed {
-//                     return KeyboardInstruction::RegisterOkResult;
-//                 }
-//                 if key == &egui::Key::D && *pressed {
-//                     return KeyboardInstruction::RegisterNokResult;
-//                 }
-//             }
-//             _ => {
-//                 return KeyboardInstruction::None;
-//             }
-//         }
-//     }
-
-//     return KeyboardInstruction::None;
-// }
